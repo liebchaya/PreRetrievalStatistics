@@ -8,6 +8,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
@@ -108,8 +109,8 @@ public class Indexer {
 								docReader.source(), Store.YES));
 					
 					if (fieldsToIndex.contains(DocField.LENGTH))
-						doc.add(new StringField(DocField.LENGTH.name(),
-								docReader.source(), Store.YES));
+						doc.add(new IntField(DocField.LENGTH.name(),
+								docReader.length(), Store.YES));
 
 					docCounter++;
 					indexWriter.addDocument(doc);
@@ -208,7 +209,11 @@ public class Indexer {
 
 					if (fieldsToIndex.contains(DocField.SOURCE))
 						doc.add(new StringField(DocField.SOURCE.name(),
-								docReader1.source(), Store.YES));		
+								docReader1.source(), Store.YES));
+					
+					if (fieldsToIndex.contains(DocField.LENGTH))
+						doc.add(new IntField(DocField.LENGTH.name(),
+								docReader1.length(), Store.YES));	
 										
 				docCounter++;
 				indexWriter.addDocument(doc);
@@ -234,6 +239,10 @@ public class Indexer {
 					if (fieldsToIndex.contains(DocField.SOURCE))
 						doc.add(new StringField(DocField.SOURCE.name(),
 								docReader2.source(), Store.YES));
+					
+					if (fieldsToIndex.contains(DocField.LENGTH))
+						doc.add(new IntField(DocField.LENGTH.name(),
+								docReader2.length(), Store.YES));
 				
 				docCounter++;
 				indexWriter.addDocument(doc);

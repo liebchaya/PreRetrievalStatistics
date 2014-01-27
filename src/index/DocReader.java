@@ -57,6 +57,6 @@ public abstract class DocReader extends Reader
 	 * @return document length
 	 * @throws IndexerException
 	 */
-	public abstract String length() throws IndexerException;
+	public abstract int length() throws IndexerException;
 	
 }

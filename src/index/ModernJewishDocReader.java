@@ -1,6 +1,3 @@
-/**
- * 
- */
 package index;
 
 
@@ -12,8 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import obj.Shoot;
-import obj.Shoots;
+
 import utils.FileFilters;
 import utils.FileUtils;
 import utils.RecursiveFileListIterator;
@@ -21,12 +17,12 @@ import utils.Utils;
 
 
 /**
- * Responsa document reader
+ * Modern jewish document reader
  * @author HZ
  */
-public class ResponsaDocReader extends DocReader
+public class ModernJewishDocReader extends DocReader
 {
-	private static final String SPACE = " ";
+	private static final String SPACE = "\\s+";
 	private RecursiveFileListIterator iter;
 	private String currID = null;
 	private File currFile;
@@ -34,16 +30,15 @@ public class ResponsaDocReader extends DocReader
 	private Iterator<String> termIter;
 	private String currDocText;
 	private String inputDir;
-	private Shoots shoots;
-//	private String encoding = null;
+	private String encoding = null;
+	private String currSource = null;
 
 	/**
 	 * @param dir folder containing files to read
 	 * @throws IndexerException
 	 * @throws InstantiationException 
-	 * @throws IOException 
 	 */
-	public ResponsaDocReader(File dir) throws IndexerException, InstantiationException, IOException
+	public ModernJewishDocReader(File dir) throws IndexerException, InstantiationException
 	{
 		super();
 		if (dir == null || !dir.exists())
@@ -64,18 +59,13 @@ public class ResponsaDocReader extends DocReader
 			currFile = iter.next();
 			try
 			{
-//				if(encoding == null)
-//					encoding = FileUtils.getFileEncoding(currFile);
-				if (currFile.getAbsolutePath().endsWith(".org")) {
-					currDocText = FileUtils.loadFileToString(currFile,"Windows-1255");
-					currDocText = currDocText.replaceAll("[\\x07\t\f\n-]", " ");
-					currDocText = currDocText.replaceAll("[^אבגדהלוזחטיכגמנסעפצקרשתץףךםןת\'\\s\"]", "");
-				}
-				else {
-					currDocText = FileUtils.loadFileToString(currFile,"UTF-8");
-					currDocText = currDocText.replaceAll("(\\p{P})", "");
-				}
-//				termIter = getNgrams(currDocText, 3).iterator();
+//				currDocText = FileUtils.loadFileToString(currFile);
+				String source = getSourceName();
+				if(encoding == null || !source.equals(currSource))
+					encoding = FileUtils.getFileEncoding(currFile);
+				currDocText = FileUtils.loadFileToString(currFile,encoding);
+				currDocText = currDocText.replaceAll("[\\x07\t\f\n-]", " ");
+				currDocText = currDocText.replaceAll("[^אבגדהלוזחטיכגמנסעפצקרשתץףךםןת\'\\s\"]", "");
 				termIter = Utils.arrayToCollection(currDocText.split(SPACE),words).iterator();
 				if (currReader != null)
 					currReader.close();
@@ -93,16 +83,16 @@ public class ResponsaDocReader extends DocReader
 	}
 
 	/* (non-Javadoc)
-	 * @see new_search.DocReader#docId()
+	 * @see index.DocReader#docId()
 	 */
 	@Override
-	public String docId() 
+	public String docId() throws IndexerException
 	{
 		return currID;
 	}
 
 	/* (non-Javadoc)
-	 * @see new_search.DocReader#doc()
+	 * @see index.DocReader#doc()
 	 */
 	@Override
 	public String doc()
@@ -111,7 +101,7 @@ public class ResponsaDocReader extends DocReader
 	}
 
 	/* (non-Javadoc)
-	 * @see new_search.DocReader#readToken()
+	 * @see index.DocReader#readToken()
 	 */
 	@Override
 	public String readToken() throws IndexerException
@@ -142,49 +132,51 @@ public class ResponsaDocReader extends DocReader
 	}
 
 	/* (non-Javadoc)
-	 * @see new_search.DocReader#period()
+	 * @see index.DocReader#period()
 	 */
 	@Override
-	public String period(){
-		Shoot s = shoots.getShootByFile(currID);
-		return s.getPeriodId();
+	public String period() throws IndexerException {
+		// modern period = 4
+		// only Rambam period = 1
+		if (getSourceName().equals("Rambam"))
+			return "1";
+		return "4";
 	}
 
 	/* (non-Javadoc)
-	 * @see new_search.DocReader#source()
+	 * @see index.DocReader#source()
 	 */
 	@Override
-	public String source() {
-		return getSourceName();
+	public String source() throws IndexerException {
+		// source name is the upper directory name
+		currSource = getSourceName();
+		return currSource;
 	}
 	
-	/* (non-Javadoc)
-	 * @see new_search.DocReader#length()
-	 */
 	@Override
-	public int length(){
+	public int length() throws IndexerException {
+		// TODO Auto-generated method stub
 		return currDocText.split(" ").length;
 	}
-
+	
 	//
 	////////////////////////////////////////////////////////// PRIVATE /////////////////////////////////////////////
 	//
 	
 	/**
+	 * Initializes folders' files
 	 * @param dir folder containing files to read
 	 * @throws IndexerException
 	 * @throws InstantiationException 
-	 * @throws IOException 
 	 */
-	private void init(File dir) throws IndexerException, InstantiationException, IOException
+	private void init(File dir) throws IndexerException, InstantiationException
 	{
 		inputDir = dir.getAbsolutePath();
-		iter = new RecursiveFileListIterator(dir, new FileFilters.TextFileFilter()); 
-		shoots = new Shoots(inputDir+"/ResponsaAllInfo.info",inputDir);
-		shoots.loadShoots();
+		iter = new RecursiveFileListIterator(dir, new FileFilters.TextNoFileFilter()); 
 	}
 	
 	/**
+	 * Gets the source folder
 	 * @return String containing upper folder name to be used as a source name
 	 */
 	private String getSourceName() 
@@ -200,30 +192,7 @@ public class ResponsaDocReader extends DocReader
 		String tempStr = temp.getName();
 		return tempStr;
 	}
+
 	
-	/*
-	private List<String> getNgrams(String content, int n){
-		LinkedList<String> ngrams = new LinkedList<String>();
-		StringTokenizer tokens = new StringTokenizer(content);
-		String[] tokenArr = new String[n];
-		String ngram = "";
-		for (int i=0; i<n-1; i++)
-			if (tokens.hasMoreTokens()){
-				tokenArr[i] = tokens.nextToken();
-		}
-		while(tokens.hasMoreTokens()){
-			tokenArr[n-1] = tokens.nextToken();
-			ngram = "";
-			for (int i=0; i<n; i++)
-				ngram = ngram+  " " + tokenArr[i];
-			ngram = ngram.trim();
-			ngrams.add(ngram);
-			for (int i=0; i<n-1; i++){
-				tokenArr[i] = tokenArr[i+1]; // step forward
-			}
-		}
-		return ngrams;
-	}
-	*/
 }
 	

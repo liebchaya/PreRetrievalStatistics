@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="C:/jars_local/lucene-4.5.1/analysis/common/lucene-analyzers-common-4.5.1.jar"/>
 	<classpathentry kind="lib" path="C:/jars_local/commons-math3-3.2/commons-math3-3.2.jar"/>
 	<classpathentry kind="lib" path="C:/jars_local/lucene-4.5.1/queryparser/lucene-queryparser-4.5.1.jar"/>
+	<classpathentry kind="lib" path="C:/jars_local/juniversalchardet-1.0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

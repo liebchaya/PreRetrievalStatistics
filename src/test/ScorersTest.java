@@ -52,7 +52,7 @@ public class ScorersTest {
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
 
 		IndexWriter w = new IndexWriter(index, config);
-		addDoc(w, "Lucene fing Action Lucene ball", "193398817");
+		addDoc(w, "Lucene action fing Action Lucene ball", "193398817");
 		addDoc(w, "Lucene action good Dummies", "55320055Z");
 		addDoc(w, "Managing Gigabytes Action Lucene", "55063554A");
 		addDoc(w, "Art bla blue Computer Science Lucene", "9900333X");

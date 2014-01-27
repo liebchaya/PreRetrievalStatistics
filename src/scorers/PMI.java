@@ -8,19 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.lucene.index.AtomicReader;
-import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.SlowCompositeReaderWrapper;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermContext;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.spans.SpanNearQuery;
 import org.apache.lucene.search.spans.SpanOrQuery;
 import org.apache.lucene.search.spans.SpanQuery;
@@ -86,54 +77,54 @@ public class PMI {
 				
 	}
 	
-	private double calcPMI1(Set<String> query1Terms,Set<String> query2Terms) throws IOException{
-		int tf = 0;
-		for(String q:query1Terms){
-			tf += m_searcher.termStatistics(new Term(Constants.field,q),TermContext.build(m_searcher.getIndexReader().getContext(), new Term(Constants.field,q))).totalTermFreq();
-		}
-		
-		long docCount = m_searcher.collectionStatistics(Constants.field).docCount();
-		double pq1D = (double)tf/(double)docCount;
-		
-		tf = 0;
-		for(String q:query2Terms){
-			tf += m_searcher.termStatistics(new Term(Constants.field,q),TermContext.build(m_searcher.getIndexReader().getContext(), new Term(Constants.field,q))).totalTermFreq();
-		}
-		double pq2D = (double)tf/(double)docCount;
-		
-		// extract the set of documents containing term t1 and t2
-		BooleanQuery query1 = new BooleanQuery();
-		for(String q:query1Terms)
-			query1.add(new BooleanClause(new TermQuery(new Term(Constants.field,q)), Occur.SHOULD));
-		BooleanQuery query2 = new BooleanQuery();
-		for(String q:query2Terms)
-			query2.add(new BooleanClause(new TermQuery(new Term(Constants.field,q)), Occur.SHOULD));
-		BooleanQuery query = new BooleanQuery();
-		query.add(query1,Occur.MUST);
-		query.add(query2,Occur.MUST);
-		TopDocs td = m_searcher.search(query, 100000);
-		int sum = 0;
-		for (ScoreDoc scoreDoc : td.scoreDocs) {
-			int tf1 = 0;
-			int tf2 = 0;
-			int docId = scoreDoc.doc;
-			Fields termVector = m_searcher.getIndexReader().getTermVectors(docId);
-			Terms terms = termVector.terms(Constants.field);
-			TermsEnum te = terms.iterator(null);
-			while (te.next() != null) {
-				// recognize one of the query's terms
-				if (query1Terms.contains(te.term().utf8ToString()))
-					tf1+=te.totalTermFreq();
-				else if (query2Terms.contains(te.term().utf8ToString()))
-					tf2+=te.totalTermFreq();
-				
-			}
-			sum += Math.min(tf1, tf2);
-		}
-		double pqD = (double)sum/(double)docCount;
-		double pmi = Math.log(pqD/(pq1D*pq2D));
-		return pmi;
-	}
+//	private double calcPMI1(Set<String> query1Terms,Set<String> query2Terms) throws IOException{
+//		int tf = 0;
+//		for(String q:query1Terms){
+//			tf += m_searcher.termStatistics(new Term(Constants.field,q),TermContext.build(m_searcher.getIndexReader().getContext(), new Term(Constants.field,q))).totalTermFreq();
+//		}
+//		
+//		long docCount = m_searcher.collectionStatistics(Constants.field).docCount();
+//		double pq1D = (double)tf/(double)docCount;
+//		
+//		tf = 0;
+//		for(String q:query2Terms){
+//			tf += m_searcher.termStatistics(new Term(Constants.field,q),TermContext.build(m_searcher.getIndexReader().getContext(), new Term(Constants.field,q))).totalTermFreq();
+//		}
+//		double pq2D = (double)tf/(double)docCount;
+//		
+//		// extract the set of documents containing term t1 and t2
+//		BooleanQuery query1 = new BooleanQuery();
+//		for(String q:query1Terms)
+//			query1.add(new BooleanClause(new TermQuery(new Term(Constants.field,q)), Occur.SHOULD));
+//		BooleanQuery query2 = new BooleanQuery();
+//		for(String q:query2Terms)
+//			query2.add(new BooleanClause(new TermQuery(new Term(Constants.field,q)), Occur.SHOULD));
+//		BooleanQuery query = new BooleanQuery();
+//		query.add(query1,Occur.MUST);
+//		query.add(query2,Occur.MUST);
+//		TopDocs td = m_searcher.search(query, 100000);
+//		int sum = 0;
+//		for (ScoreDoc scoreDoc : td.scoreDocs) {
+//			int tf1 = 0;
+//			int tf2 = 0;
+//			int docId = scoreDoc.doc;
+//			Fields termVector = m_searcher.getIndexReader().getTermVectors(docId);
+//			Terms terms = termVector.terms(Constants.field);
+//			TermsEnum te = terms.iterator(null);
+//			while (te.next() != null) {
+//				// recognize one of the query's terms
+//				if (query1Terms.contains(te.term().utf8ToString()))
+//					tf1+=te.totalTermFreq();
+//				else if (query2Terms.contains(te.term().utf8ToString()))
+//					tf2+=te.totalTermFreq();
+//				
+//			}
+//			sum += Math.min(tf1, tf2);
+//		}
+//		double pqD = (double)sum/(double)docCount;
+//		double pmi = Math.log(pqD/(pq1D*pq2D));
+//		return pmi;
+//	}
 
 	private double calcPMI(Set<String> query1Terms,Set<String> query2Terms) throws IOException{
 		int tf = 0;
@@ -158,7 +149,7 @@ public class PMI {
 		for(String q:query2Terms)
 			query2.addClause(new SpanTermQuery(new Term(Constants.field,q)));
 		SpanQuery[] arr = new SpanQuery[]{query1,query2};
-		SpanNearQuery query = new SpanNearQuery(arr,0,true);
+		SpanNearQuery query = new SpanNearQuery(arr,100000,false);
 		// calculate average w(t,d)
 		double sum = 0;
 		//this is not the best way of doing this, but it works for the example.  See http://www.slideshare.net/lucenerevolution/is-your-index-reader-really-atomic-or-maybe-slow for higher performance approaches

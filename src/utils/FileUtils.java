@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.mozilla.universalchardet.UniversalDetector;
+
 /**
  * Utilities for file treatment
  * @author HZ
@@ -108,6 +110,41 @@ public class FileUtils {
         }
         return ret && path.delete();
     }
+    
+    /**
+	 * Detects a file encoding
+	 * @param file
+	 * @return encoding string
+	 * @throws IOException
+	 */
+	public static String getFileEncoding(File file) throws IOException{
+		 byte[] buf = new byte[4096];
+		    java.io.FileInputStream fis = new java.io.FileInputStream(file);
+
+		    // (1)
+		    UniversalDetector detector = new UniversalDetector(null);
+
+		    // (2)
+		    int nread;
+		    while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
+		      detector.handleData(buf, 0, nread);
+		    }
+		    // (3)
+		    detector.dataEnd();
+
+		    // (4)
+		    String encoding = detector.getDetectedCharset();
+		    if (encoding != null) {
+		      System.out.println("Detected encoding = " + encoding);
+		    } else {
+		      System.out.println("No encoding detected.");
+		    }
+
+		    // (5)
+		    detector.reset();
+		    return encoding;
+	}
+
 
 
 }

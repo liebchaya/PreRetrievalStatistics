@@ -65,34 +65,34 @@ public class PreRetrievalArff {
 		ArffFile arff = new ArffFile(args[2]);
 		arff.setRelation("PreRetrievalMeasures");
 		arff.addAttribute("TF", "REAL");
-//		arff.addAttribute("AvgIDF", "REAL");
-//		arff.addAttribute("MaxIDF", "REAL");
-//		arff.addAttribute("DevIDF", "REAL");
-//		
-//		arff.addAttribute("AvgICTF", "REAL");
-//		arff.addAttribute("MaxICTF", "REAL");
-//		arff.addAttribute("DevICTF", "REAL");
-//		
-//		arff.addAttribute("AvgEntropy", "REAL");
-//		arff.addAttribute("MedEntropy", "REAL");
-//		arff.addAttribute("MaxEntropy", "REAL");
-//		arff.addAttribute("DevEntropy", "REAL");
-//		
-//		arff.addAttribute(qs.getName(), "REAL");
-//		arff.addAttribute(scs.getName(), "REAL");
-//		
-//		arff.addAttribute("AvgVAR", "REAL");
-//		arff.addAttribute("MaxVAR", "REAL");
-//		arff.addAttribute("SumVAR", "REAL");
-//		
+		arff.addAttribute("AvgIDF", "REAL");
+		arff.addAttribute("MaxIDF", "REAL");
+		arff.addAttribute("DevIDF", "REAL");
+		
+		arff.addAttribute("AvgICTF", "REAL");
+		arff.addAttribute("MaxICTF", "REAL");
+		arff.addAttribute("DevICTF", "REAL");
+		
+		arff.addAttribute("AvgEntropy", "REAL");
+		arff.addAttribute("MedEntropy", "REAL");
+		arff.addAttribute("MaxEntropy", "REAL");
+		arff.addAttribute("DevEntropy", "REAL");
+		
+		arff.addAttribute(qs.getName(), "REAL");
+		arff.addAttribute(scs.getName(), "REAL");
+		
+		arff.addAttribute("AvgVAR", "REAL");
+		arff.addAttribute("MaxVAR", "REAL");
+		arff.addAttribute("SumVAR", "REAL");
+		
 		arff.addAttribute("CS", "REAL");
 		
-//		arff.addAttribute("AvgSCQ", "REAL");
-//		arff.addAttribute("MaxSCQ", "REAL");
-//		arff.addAttribute("SumSCQ", "REAL");
-//		
-//		arff.addAttribute("AvgPMI", "REAL");
-//		arff.addAttribute("MaxPMI", "REAL");
+		arff.addAttribute("AvgSCQ", "REAL");
+		arff.addAttribute("MaxSCQ", "REAL");
+		arff.addAttribute("SumSCQ", "REAL");
+		
+		arff.addAttribute("AvgPMI", "REAL");
+		arff.addAttribute("MaxPMI", "REAL");
 		
 		arff.addAttribute("class", "{0,1}");
 		arff.writeArffHeader();
@@ -111,44 +111,84 @@ public class PreRetrievalArff {
 
 			dataLine += tf.score(queryList) + ",";
 			
-//			OperationScorers os = new OperationScorers(idf);
-//			dataLine += os.Avg(queryList) + ",";
-//			dataLine += os.Max(queryList) + ",";
-//			dataLine += os.Dev(queryList) + ",";
-//			
-//			os = new OperationScorers(ictf);
-//			dataLine += os.Avg(queryList) + ",";
-//			dataLine += os.Max(queryList) + ",";
-//			dataLine += os.Dev(queryList) + ",";
-//			
-//			os = new OperationScorers(entropy);
-//			dataLine += os.Avg(queryList) + ",";
-//			dataLine += os.Med(queryList) + ",";
-//			dataLine += os.Max(queryList) + ",";
-//			dataLine += os.Dev(queryList) + ",";
-//			
-//			dataLine += qs.score(queryList) + ",";
-//			dataLine += scs.score(queryList) + ",";
-//			
-//			os = new OperationScorers(var);
-//			dataLine += os.Avg(queryList) + ",";
-//			dataLine += os.Max(queryList) + ",";
-//			dataLine += os.Sum(queryList) + ",";
-//			
-			dataLine += cs.score(queryList,executor) + ",";
+			OperationScorers os = new OperationScorers(idf);
+			if (queryList.size()>1){
+				dataLine += os.Avg(queryList) + ",";
+				dataLine += os.Max(queryList) + ",";
+				dataLine += os.Dev(queryList) + ",";
+			}
+			else {
+				double score = os.Avg(queryList);
+				dataLine += score + ",";
+				dataLine += score + ",";
+				dataLine += Double.NaN+",";
+			}
 			
-//			os = new OperationScorers(scq);
-//			dataLine += os.Avg(queryList) + ",";
-//			dataLine += os.Max(queryList) + ",";
-//			dataLine += os.Sum(queryList) + ",";
-//			
-//			if(queryList.size()==1)
-//				dataLine += "0,0,";
-//			else {
-//				dataLine += pmi.score(queryList,0) + ",";
-//				dataLine += pmi.score(queryList,1) + ",";
-//			}
-//			
+			os = new OperationScorers(ictf);
+			if (queryList.size()>1) {
+				dataLine += os.Avg(queryList) + ",";
+				dataLine += os.Max(queryList) + ",";
+				dataLine += os.Dev(queryList) + ",";
+			}
+			else {
+				double score = os.Avg(queryList);
+				dataLine += score + ",";
+				dataLine += score + ",";
+				dataLine += Double.NaN+",";
+			}
+			
+			os = new OperationScorers(entropy);
+			if (queryList.size()>1) {
+				dataLine += os.Avg(queryList) + ",";
+				dataLine += os.Med(queryList) + ",";
+				dataLine += os.Max(queryList) + ",";
+				dataLine += os.Dev(queryList) + ",";
+			}	
+			else {
+				double score = os.Avg(queryList);
+				dataLine += score + ",";
+				dataLine += score + ",";
+				dataLine += score + ",";
+				dataLine += Double.NaN+",";
+			}
+			
+			dataLine += qs.score(queryList) + ",";
+			dataLine += scs.score(queryList) + ",";
+			
+			os = new OperationScorers(var);
+			if (queryList.size()>1) {
+				dataLine += os.Avg(queryList) + ",";
+				dataLine += os.Max(queryList) + ",";
+				dataLine += os.Sum(queryList) + ",";	
+			} else {
+				double score = os.Avg(queryList);
+				dataLine += score + ",";
+				dataLine += score + ",";
+				dataLine += score + ",";
+			}
+			
+			dataLine += cs.score(queryList,executor) + ",";
+				
+			
+			os = new OperationScorers(scq);
+			if (queryList.size()>1) {
+				dataLine += os.Avg(queryList) + ",";
+				dataLine += os.Max(queryList) + ",";
+				dataLine += os.Sum(queryList) + ",";
+			} else {
+				double score = os.Avg(queryList);
+				dataLine += score + ",";
+				dataLine += score + ",";
+				dataLine += score + ",";
+			}
+			
+			if(queryList.size()==1)
+				dataLine += "0,0,";
+			else {
+				dataLine += pmi.score(queryList,0) + ",";
+				dataLine += pmi.score(queryList,1) + ",";
+			}
+			
 			dataLine += line.split("\t")[1];
 			System.out.println(dataLine);
 			arff.writeDataLine(dataLine);
@@ -159,5 +199,6 @@ public class PreRetrievalArff {
 		
 
 	}
+	
 
 }
