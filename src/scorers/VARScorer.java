@@ -99,6 +99,7 @@ public class VARScorer implements Scorer{
 	@Override
 	public double score(Set<String> queryTerms) throws IOException {
 		IDFScorer idf = new IDFScorer(m_searcher);
+		double idfScore = idf.score(queryTerms);
 		// extract the set of documents containing term t
 		SpanOrQuery query = new SpanOrQuery();
 		for(String q:queryTerms)
@@ -123,7 +124,7 @@ public class VARScorer implements Scorer{
 		for(int id:spansMap.keySet()){
 			int d = Integer.parseInt(m_searcher.getIndexReader().document(id).get("LENGTH"));
 			docLenMap.put(id, d);
-			double wtd = (1/(double)d)*Math.log(1+(double)spansMap.get(id))*idf.score(queryTerms);
+			double wtd = (1/(double)d)*Math.log(1+(double)spansMap.get(id))*idfScore;
 			sum += wtd;
 		}
 		double wt = sum/spansMap.size();
@@ -131,7 +132,7 @@ public class VARScorer implements Scorer{
 		sum = 0;
 		for(int id:spansMap.keySet()){
 			int d = docLenMap.get(id);
-			double wtd = (1/(double)d)*Math.log(1+(double)spansMap.get(id))*idf.score(queryTerms);
+			double wtd = (1/(double)d)*Math.log(1+(double)spansMap.get(id))*idfScore;
 			sum += Math.pow(wtd-wt, 2);
 		}
 		double var = Math.sqrt(sum/spansMap.size());

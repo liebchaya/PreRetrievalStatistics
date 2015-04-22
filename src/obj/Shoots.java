@@ -2,8 +2,10 @@ package obj;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 
 /**
@@ -31,7 +33,7 @@ public class Shoots {
 	 * @throws IOException
 	 */
 	public void loadShoots() throws IOException{
-		BufferedReader br = new BufferedReader(new FileReader( new File(shootsfile)));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(shootsfile), "UTF-8"));
 		String line = br.readLine();
 		while (line!=null){
 			//System.out.println(line);

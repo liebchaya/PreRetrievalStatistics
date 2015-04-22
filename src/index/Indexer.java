@@ -18,6 +18,9 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.FieldInfo.IndexOptions;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.search.similarities.LMDirichletSimilarity;
+import org.apache.lucene.search.similarities.LMDirichletSimilarityAccurateDocLength;
+import org.apache.lucene.search.similarities.Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -76,7 +79,7 @@ public class Indexer {
 				overwriteNotApped = true;
 
 			IndexWriterConfig conf = new IndexWriterConfig(
-					Version.LUCENE_40, analyzer);
+					Version.LUCENE_48, analyzer);
 			conf.setOpenMode(overwriteNotApped ? OpenMode.CREATE
 					: OpenMode.CREATE_OR_APPEND);
 			IndexWriter indexWriter = new IndexWriter(fsDir, conf);
@@ -177,11 +180,18 @@ public class Indexer {
 			if (!indexDir.exists() || indexDir.listFiles().length == 0)
 				overwriteNotApped = true;
 
-			IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_40,
+			
+			IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_48,
 					analyzer);
 			conf.setOpenMode(overwriteNotApped ? OpenMode.CREATE
 					: OpenMode.CREATE_OR_APPEND);
+			
+			Similarity sim = new LMDirichletSimilarityAccurateDocLength(1000);
+//			Similarity sim = new LMDirichletSimilarity();
+			conf.setSimilarity(sim);
+			
 			IndexWriter indexWriter = new IndexWriter(fsDir, conf);
+			
 			
 			final FieldType BodyOptions = new FieldType();
 			BodyOptions.setIndexed(true);

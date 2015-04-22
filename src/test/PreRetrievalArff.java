@@ -42,10 +42,11 @@ public class PreRetrievalArff {
 		int iThreadNum = 20;
 		ExecutorService executor = Executors.newFixedThreadPool(iThreadNum);
 		// open input file
-		BufferedReader bReader = new BufferedReader(new FileReader(args[0]));
+//		BufferedReader bReader = new BufferedReader(new FileReader(args[0]));
+		BufferedReader bReader = new BufferedReader(new FileReader("F:\\1_morph.txt"));
 		// open Lucene index
-//		Directory directory = FSDirectory.open(new File("C:\\ResponsaNew\\indexes\\unigIndex"));
-		Directory directory = FSDirectory.open(new File(args[1]));
+		Directory directory = FSDirectory.open(new File("F:\\Responsa\\indexes\\unigPre"));
+//		Directory directory = FSDirectory.open(new File(args[1]));
 		DirectoryReader reader = DirectoryReader.open(directory);  
 		IndexSearcher searcher = new IndexSearcher(reader);  
 		
@@ -62,7 +63,8 @@ public class PreRetrievalArff {
 		PMI pmi = new PMI(searcher);
 		
 		// arff header
-		ArffFile arff = new ArffFile(args[2]);
+//		ArffFile arff = new ArffFile(args[2]);
+		ArffFile arff = new ArffFile("F:\\preresulttest.arff");
 		arff.setRelation("PreRetrievalMeasures");
 		arff.addAttribute("TF", "REAL");
 		arff.addAttribute("AvgIDF", "REAL");
@@ -85,7 +87,7 @@ public class PreRetrievalArff {
 		arff.addAttribute("MaxVAR", "REAL");
 		arff.addAttribute("SumVAR", "REAL");
 		
-		arff.addAttribute("CS", "REAL");
+//		arff.addAttribute("CS", "REAL");
 		
 		arff.addAttribute("AvgSCQ", "REAL");
 		arff.addAttribute("MaxSCQ", "REAL");
@@ -101,15 +103,41 @@ public class PreRetrievalArff {
 		while(line!=null){
 			String dataLine = "";
 			
-			String query = line.split("\t")[0];
+			String query = line.substring(line.indexOf("\t")+1);
+//			String query = line.split("\t")[0];
+			List<LinkedList<String>> queryListTf = new LinkedList<LinkedList<String>>();
 			List<Set<String>> queryList = new LinkedList<Set<String>>();
-			for(String t:query.split(" ")){
-				Set<String> queries = new HashSet<String>();
-				queries.add(t);
-				queryList.add(queries);
+//			for(String t:query.split(" ")){
+//				Set<String> queries = new HashSet<String>();
+//				queries.add(t);
+//				queryList.add(queries);
+//			}
+			
+			// build query list for tfscorer
+			for(String t:query.split("\t")){
+				LinkedList<String> queries = new LinkedList<String>();
+				for(String t1:t.split(" "))
+					queries.add(t1);
+				queryListTf.add(queries);
 			}
 
-			dataLine += tf.score(queryList) + ",";
+			dataLine += tf.score(queryListTf) + ",";
+			
+			// build query list for other scorers
+			queryList = new LinkedList<Set<String>>();
+			for(String t:query.split("\t")){
+				for(int pos=0; pos< t.split(" ").length; pos++){
+					if (queryList.size()-1 < pos){
+						Set<String> queries = new HashSet<String>();
+						queries.add( t.split(" ")[pos]);
+						queryList.add(pos, queries);
+					} else {
+						queryList.get(pos).add(t.split(" ")[pos]);
+					}
+				}
+				
+			}
+
 			
 			OperationScorers os = new OperationScorers(idf);
 			if (queryList.size()>1){
@@ -167,7 +195,7 @@ public class PreRetrievalArff {
 				dataLine += score + ",";
 			}
 			
-			dataLine += cs.score(queryList,executor) + ",";
+//			dataLine += cs.score(queryList,executor) + ",";
 				
 			
 			os = new OperationScorers(scq);

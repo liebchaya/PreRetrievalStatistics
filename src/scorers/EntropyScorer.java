@@ -47,7 +47,7 @@ public class EntropyScorer implements Scorer{
 		for(String q:queryTerms)
 			query.add(new BooleanClause(new TermQuery(new Term(Constants.field,q)), Occur.SHOULD));
 		TopDocs td = m_searcher.search(query, 100000);
-		long docCount = m_searcher.collectionStatistics(Constants.field).docCount();
+//		long docCount = m_searcher.collectionStatistics(Constants.field).docCount();
 		double sum = 0;
 		for (ScoreDoc scoreDoc : td.scoreDocs) {
 			int tf = 0;
@@ -63,7 +63,7 @@ public class EntropyScorer implements Scorer{
 				d+=te.totalTermFreq();
 			}
 			double ptd = (double)tf/(double)d;
-			sum += ptd*MathUtils.Log(ptd, docCount);
+			sum += ptd*MathUtils.Log(ptd, 2);
 		}
 		
 		return sum;

@@ -38,7 +38,7 @@ public class IndexCorpora
 		cls = Class.forName(docReaderClass);
 		DocReader reader = (DocReader) cls.getDeclaredConstructor(File.class).newInstance(corpusDir);
 
-		System.out.println("Indexing dir: " + corpusDir.getName() + " with lucene version: " + Version.LUCENE_40);
+		System.out.println("Indexing dir: " + corpusDir.getName() + " with lucene version: " + Version.LUCENE_48);
 		File indexDir = new File(indexFolder);
 		Indexer manager = new Indexer();
 		Set<Indexer.DocField> fields = new HashSet<Indexer.DocField>();
@@ -47,7 +47,7 @@ public class IndexCorpora
 		fields.add(Indexer.DocField.PERIOD);
 		fields.add(Indexer.DocField.SOURCE);
 		fields.add(Indexer.DocField.LENGTH);
-		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_48);
 		manager.index(analyzer, reader, indexDir , fields, false, true);
 		analyzer.close();
 		

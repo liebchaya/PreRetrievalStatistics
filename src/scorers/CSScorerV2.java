@@ -125,8 +125,8 @@ public class CSScorerV2{
 		
 		docsList = new ArrayList<Integer>(index.keySet());
 		ArrayList<CosineMultiThread> threadList = new ArrayList<CSScorerV2.CosineMultiThread>();
-		int threadsNum = (docsList.size()/20>0?docsList.size()/20:2);
-		int docsNum = docsList.size()/threadsNum;
+		int threadsNum = (docsList.size()/20>0?20:2);
+		int docsNum = docsList.size()/(threadsNum-1);
 		int startIndex = 0;
 		int lastIndex = startIndex+docsNum;
 		while(lastIndex<docsList.size()){
@@ -136,11 +136,12 @@ public class CSScorerV2{
 		}
 		threadList.add(new CosineMultiThread(startIndex,docsList.size()));
 			
+		latch = new CountDownLatch(threadList.size());
+		
 		for(CosineMultiThread t:threadList){	
 			executor.execute(t);
 		}
 		
-		latch = new CountDownLatch(threadList.size());
 //		//join/wait
 //		try {
 //		executor.shutdown();

@@ -42,9 +42,9 @@ public class PMI {
 	 */
 	
 	public double score(List<Set<String>> queryList, int type) throws Exception{
-		System.out.println(queryList);
-		if (queryList.size()==3)
-			System.out.println("3");
+//		System.out.println(queryList);
+//		if (queryList.size()==3)
+//			System.out.println("3");
 		if(type==0){
 			double sum = 0;
 			int count = 0;
@@ -166,6 +166,9 @@ public class PMI {
 //				spansMap.put(spans.doc(),1);
 			sum++;
 		}
+		// add if for QE
+		if(sum==0)
+			return 0;
 		double pqD = (double)sum/(double)docCount;
 		double pmi = Math.log(pqD/(pq1D*pq2D));
 		return pmi;

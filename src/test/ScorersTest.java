@@ -110,8 +110,8 @@ public class ScorersTest {
 		
 		IndexReader reader = IndexReader.open(index);
 		IndexSearcher searcher = new IndexSearcher(reader);
-		CosineVectorBasedSimilarity cosine = new CosineVectorBasedSimilarity(searcher);
-		System.out.println(cosine.cosineScore(0, 1));
+//		CosineVectorBasedSimilarity cosine = new CosineVectorBasedSimilarity(searcher);
+//		System.out.println(cosine.cosineScore(0, 1));
 		IDFScorer scorer = new IDFScorer(searcher);
 //		Query q = new TermQuery(new Term("title","lucene"));
 		List<Set<String>> queryList = new LinkedList<Set<String>>();

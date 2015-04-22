@@ -8,6 +8,7 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.TermQuery;
 
 public class IDFScorer implements Scorer{
@@ -29,7 +30,7 @@ public class IDFScorer implements Scorer{
 			query.add(new BooleanClause(new TermQuery(new Term(Constants.field,q)), Occur.SHOULD));
 		int docFreq = m_searcher.search(query, 100000).totalHits;
 		long docCount = m_searcher.collectionStatistics(Constants.field).docCount();
-		return Math.log((double)docCount/(double)docFreq);
+		return Math.log(1+(double)docCount/(double)docFreq);
 	}
 
 	@Override
